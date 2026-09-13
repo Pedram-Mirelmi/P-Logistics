@@ -1,4 +1,4 @@
-package order;
+package com.p.logistics.order;
 
 import java.util.List;
 import java.util.UUID;

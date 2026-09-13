@@ -1,6 +1,6 @@
-package order;
+package com.p.logistics.order;
 
-import inventory.InventoryRepository;
+import com.p.logistics.inventory.InventoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

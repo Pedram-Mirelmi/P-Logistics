@@ -1,4 +1,4 @@
-package inventory;
+package com.p.logistics.inventory;
 
 
 import org.springframework.stereotype.Repository;

@@ -1,10 +1,9 @@
-package order;
+package com.p.logistics.order;
 
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
