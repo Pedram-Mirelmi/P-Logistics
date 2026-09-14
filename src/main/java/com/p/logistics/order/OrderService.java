@@ -1,6 +1,7 @@
 package com.p.logistics.order;
 
 import com.p.logistics.inventory.InventoryRepository;
+import com.p.logistics.inventory.InventoryService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,14 +11,14 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final InventoryRepository inventoryRepository;
+    private final InventoryService inventoryService;
 
     public OrderService(
             OrderRepository orderRepository,
-            InventoryRepository inventoryRepository
+            InventoryService inventoryService
     ) {
         this.orderRepository = orderRepository;
-        this.inventoryRepository = inventoryRepository;
+        this.inventoryService = inventoryService;
     }
 
     public Order submitOrder(List<OrderLine> lines) {
@@ -25,7 +26,7 @@ public class OrderService {
         boolean allReserved = true;
 
         for (OrderLine line : lines) {
-            boolean reserved = inventoryRepository.reserve(
+            boolean reserved = inventoryService.reserve(
                     line.productId(),
                     line.quantity()
             );

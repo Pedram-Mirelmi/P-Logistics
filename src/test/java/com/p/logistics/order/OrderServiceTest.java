@@ -4,6 +4,7 @@ package com.p.logistics.order;
 import com.p.logistics.inventory.InMemoryInventoryRepository;
 import com.p.logistics.inventory.InventoryItem;
 import com.p.logistics.inventory.InventoryRepository;
+import com.p.logistics.inventory.InventoryService;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -17,12 +18,13 @@ class OrderServiceTest {
         OrderRepository orderRepository = new InMemoryOrderRepository();
         InventoryRepository inventoryRepository =
                 new InMemoryInventoryRepository();
+        InventoryService inventoryService = new InventoryService(inventoryRepository);
 
         inventoryRepository.save(new InventoryItem("P1", 10));
         inventoryRepository.save(new InventoryItem("P2", 5));
 
         OrderService orderService =
-                new OrderService(orderRepository, inventoryRepository);
+                new OrderService(orderRepository, inventoryService);
 
         Order order = orderService.submitOrder(
                 List.of(
