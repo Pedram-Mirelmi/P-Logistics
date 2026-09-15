@@ -8,4 +8,6 @@ public interface ShipmentRepository {
     void save(Shipment shipment);
 
     Optional<Shipment> findById(UUID id);
+
+    Optional<Shipment> findByOrderId(UUID orderId);
 }

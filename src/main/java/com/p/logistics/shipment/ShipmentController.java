@@ -45,4 +45,13 @@ public class ShipmentController {
                 shipmentService.updateStatus(id, status)
         );
     }
+
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<Shipment> getShipmentByOrderId(
+            @PathVariable UUID orderId
+    ) {
+        return ResponseEntity.ok(
+                shipmentService.getShipmentByOrderId(orderId)
+        );
+    }
 }

@@ -21,4 +21,12 @@ public class InMemoryShipmentRepository implements ShipmentRepository {
     public Optional<Shipment> findById(UUID id) {
         return Optional.ofNullable(shipments.get(id));
     }
+
+    @Override
+    public Optional<Shipment> findByOrderId(UUID orderId) {
+        return shipments.values()
+                .stream()
+                .filter(shipment -> shipment.getOrderId().equals(orderId))
+                .findFirst();
+    }
 }

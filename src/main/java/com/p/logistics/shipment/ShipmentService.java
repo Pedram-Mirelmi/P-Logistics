@@ -33,6 +33,12 @@ public class ShipmentService {
                         new IllegalArgumentException("Shipment not found"));
     }
 
+    public Shipment getShipmentByOrderId(UUID orderId) {
+        return shipmentRepository.findByOrderId(orderId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Shipment not found"));
+    }
+
     public Shipment updateStatus(UUID id, ShipmentStatus status) {
         Shipment shipment = getShipment(id);
 
