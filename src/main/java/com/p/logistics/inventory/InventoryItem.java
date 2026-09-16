@@ -1,26 +1,30 @@
 package com.p.logistics.inventory;
 
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class InventoryItem {
 
-    @Getter
-    private final String productId;
+    private String productId;
 
-    @Getter
-    private int availableQuantity;
+    private int quantity;
 
-    public InventoryItem(String productId, int availableQuantity) {
+    public InventoryItem() {
+    }
+
+    public InventoryItem(String productId, int quantity) {
         this.productId = productId;
-        this.availableQuantity = availableQuantity;
+        this.quantity = quantity;
     }
 
     public boolean reserve(int quantity) {
-        if (quantity <= 0 || quantity > availableQuantity) {
+        if (quantity <= 0 || quantity > this.quantity) {
             return false;
         }
 
-        availableQuantity -= quantity;
+        this.quantity -= quantity;
         return true;
     }
 }
