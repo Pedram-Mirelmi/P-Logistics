@@ -4,5 +4,6 @@
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V1__initial_schema.sql" value="1c44692c-84fa-48ea-a126-0b2cbbee9047" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V2__inventory_item_version.sql" value="1c44692c-84fa-48ea-a126-0b2cbbee9047" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V3__order_shipment_schema.sql" value="1c44692c-84fa-48ea-a126-0b2cbbee9047" />
+    <file url="file://$PROJECT_DIR$/src/test/java/com/p/logistics/IsolationAnomalyTest.java" value="1c44692c-84fa-48ea-a126-0b2cbbee9047" />
   </component>
 </project>
