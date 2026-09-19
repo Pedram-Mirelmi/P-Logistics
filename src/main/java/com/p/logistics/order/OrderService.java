@@ -2,6 +2,7 @@ package com.p.logistics.order;
 
 import com.p.logistics.inventory.InventoryService;
 import com.p.logistics.shipment.ShipmentService;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,12 +28,17 @@ public class OrderService {
         boolean allReserved = true;
 
         for (OrderLine line : lines) {
-            boolean reserved = inventoryService.reserve(
-                    line.getProductId(),
-                    line.getQuantity()
-            );
-
-            if (!reserved) {
+            boolean reserved;
+            try {
+                reserved = inventoryService.reserve(
+                        line.getProductId(),
+                        line.getQuantity()
+                );
+                if (!reserved) {
+                    allReserved = false;
+                    break;
+                }
+            } catch (ObjectOptimisticLockingFailureException e) {
                 allReserved = false;
                 break;
             }
