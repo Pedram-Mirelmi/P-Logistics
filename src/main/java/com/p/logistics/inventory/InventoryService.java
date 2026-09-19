@@ -31,12 +31,12 @@ public class InventoryService {
                         new IllegalArgumentException("Product not found"));
     }
 
-    @Transactional
+
     @Retryable(retryFor = ObjectOptimisticLockingFailureException.class)
+    @Transactional
     public boolean reserve(String productId, int quantity) {
         Optional<InventoryItem> inventoryItem = inventoryRepository.findById(productId);
         return inventoryItem.map(item -> item.reserve(quantity)).orElse(false);
     }
-
 
 }
