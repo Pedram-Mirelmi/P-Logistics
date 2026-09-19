@@ -1,9 +1,10 @@
 package com.p.logistics.order;
 
-import com.p.logistics.inventory.InventoryRepository;
 import com.p.logistics.inventory.InventoryService;
 import com.p.logistics.shipment.ShipmentService;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,30 +12,33 @@ import java.util.UUID;
 @Service
 public class OrderService {
 
-    private final OrderRepository orderRepository;
+    private final JpaOrderRepository orderRepository;
     private final InventoryService inventoryService;
     private final ShipmentService shipmentService;
 
-    public OrderService(
-            OrderRepository orderRepository,
-            InventoryService inventoryService, ShipmentService shipmentService
-    ) {
+    public OrderService(JpaOrderRepository orderRepository, InventoryService inventoryService, ShipmentService shipmentService) {
         this.orderRepository = orderRepository;
         this.inventoryService = inventoryService;
         this.shipmentService = shipmentService;
     }
 
+    @Transactional
     public Order submitOrder(List<OrderLine> lines) {
 
         boolean allReserved = true;
 
         for (OrderLine line : lines) {
-            boolean reserved = inventoryService.reserve(
-                    line.productId(),
-                    line.quantity()
-            );
-
-            if (!reserved) {
+            boolean reserved;
+            try {
+                reserved = inventoryService.reserve(
+                        line.getProductId(),
+                        line.getQuantity()
+                );
+                if (!reserved) {
+                    allReserved = false;
+                    break;
+                }
+            } catch (ObjectOptimisticLockingFailureException e) {
                 allReserved = false;
                 break;
             }

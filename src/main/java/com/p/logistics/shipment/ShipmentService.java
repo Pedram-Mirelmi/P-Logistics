@@ -7,9 +7,9 @@ import java.util.UUID;
 @Service
 public class ShipmentService {
 
-    private final ShipmentRepository shipmentRepository;
+    private final JpaShipmentRepository shipmentRepository;
 
-    public ShipmentService(ShipmentRepository shipmentRepository) {
+    public ShipmentService(JpaShipmentRepository shipmentRepository) {
         this.shipmentRepository = shipmentRepository;
     }
 
