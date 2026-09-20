@@ -1,0 +1,9 @@
+target/
+.idea/
+*.iml
+.git/
+.gitignore
+.claude/
+*.md
+compose.yaml
+compose.override.yaml

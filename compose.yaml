@@ -1,0 +1,62 @@
+services:
+  postgres-primary:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: logistics
+      POSTGRES_USER: logistics
+      POSTGRES_PASSWORD: logistics
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-primary-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U logistics -d logistics"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  postgres-supplier:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: supplier
+      POSTGRES_USER: supplier
+      POSTGRES_PASSWORD: supplier
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-supplier-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U supplier -d supplier"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      # Container DNS: the app reaches Postgres by service name, on the
+      # in-network port (5432), never by localhost or the host-published
+      # port (5433/5434) — those only exist outside the compose network.
+      SPRING_DATASOURCE_PRIMARY_URL: jdbc:postgresql://postgres-primary:5432/logistics
+      SPRING_DATASOURCE_PRIMARY_USERNAME: logistics
+      SPRING_DATASOURCE_PRIMARY_PASSWORD: logistics
+      SPRING_DATASOURCE_SECONDARY_URL: jdbc:postgresql://postgres-supplier:5432/supplier
+      SPRING_DATASOURCE_SECONDARY_USERNAME: supplier
+      SPRING_DATASOURCE_SECONDARY_PASSWORD: supplier
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+      postgres-supplier:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      start_period: 40s
+      retries: 5
+
+volumes:
+  postgres-primary-data:
+  postgres-supplier-data:
