@@ -74,6 +74,22 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Stands in for inventory-service in the RPC failure-matrix
+             experiments (Step 05): lets those tests control exactly when
+             the "server" delays, drops the connection, or replies with
+             garbage, none of which a real running instance lets you do on
+             demand. "-standalone" (not the plain "wiremock" artifact):
+             WireMock 3.x no longer bundles a server engine in the plain
+             jar and defaults to Jetty 11, which isn't on this classpath
+             (order-service runs on Tomcat) - standalone ships everything,
+             shaded, so it can't collide with anything else here. -->
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+            <version>3.13.2</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

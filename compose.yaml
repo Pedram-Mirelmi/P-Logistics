@@ -1,6 +1,10 @@
 services:
   postgres-logistics:
     image: postgres:17
+    # max_prepared_transactions: off (0) by default - the Step 05 2PC lab
+    # (TwoPhaseCommitLabTest) needs PREPARE TRANSACTION enabled here and on
+    # postgres-inventory.
+    command: postgres -c max_prepared_transactions=10
     environment:
       POSTGRES_DB: logistics
       POSTGRES_USER: logistics
@@ -17,6 +21,7 @@ services:
 
   postgres-inventory:
     image: postgres:17
+    command: postgres -c max_prepared_transactions=10
     environment:
       POSTGRES_DB: inventory
       POSTGRES_USER: inventory
