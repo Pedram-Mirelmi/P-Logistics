@@ -1,4 +1,4 @@
-package com.p.logistics;
+package com.p.logistics.integration;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package com.p.logistics;
+package com.p.logistics.integration;
 
 import com.p.logistics.order.JpaOrderRepository;
 import com.p.logistics.order.Order;

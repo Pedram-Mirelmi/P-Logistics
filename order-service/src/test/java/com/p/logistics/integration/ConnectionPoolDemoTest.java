@@ -1,4 +1,4 @@
-package com.p.logistics;
+package com.p.logistics.integration;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

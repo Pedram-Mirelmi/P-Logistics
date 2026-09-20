@@ -1,6 +1,6 @@
 services:
   postgres-logistics:
-    image: postgres:16-alpine
+    image: postgres:17
     environment:
       POSTGRES_DB: logistics
       POSTGRES_USER: logistics
@@ -16,13 +16,13 @@ services:
       retries: 10
 
   postgres-inventory:
-    image: postgres:16-alpine
+    image: postgres:17
     environment:
       POSTGRES_DB: inventory
       POSTGRES_USER: inventory
       POSTGRES_PASSWORD: inventory
     ports:
-      - "5435:5432"
+      - "5434:5432"
     volumes:
       - postgres-inventory-data:/var/lib/postgresql/data
     healthcheck:

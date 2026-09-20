@@ -1,4 +1,4 @@
-package com.p.logistics;
+package com.p.logistics.integration;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,4 +1,4 @@
-package com.p.logistics;
+package com.p.logistics.integration;
 
 import com.p.logistics.inventory.InventoryItem;
 import com.p.logistics.inventory.JpaInventoryItemRepository;
