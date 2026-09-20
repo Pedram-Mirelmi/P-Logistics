@@ -1,6 +1,10 @@
 services:
-  postgres-primary:
-    image: postgres:16-alpine
+  postgres-logistics:
+    image: postgres:17
+    # max_prepared_transactions: off (0) by default - the Step 05 2PC lab
+    # (TwoPhaseCommitLabTest) needs PREPARE TRANSACTION enabled here and on
+    # postgres-inventory.
+    command: postgres -c max_prepared_transactions=10
     environment:
       POSTGRES_DB: logistics
       POSTGRES_USER: logistics
@@ -8,47 +12,45 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - postgres-primary-data:/var/lib/postgresql/data
+      - postgres-logistics-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U logistics -d logistics"]
       interval: 5s
       timeout: 3s
       retries: 10
 
-  postgres-supplier:
-    image: postgres:16-alpine
+  postgres-inventory:
+    image: postgres:17
+    command: postgres -c max_prepared_transactions=10
     environment:
-      POSTGRES_DB: supplier
-      POSTGRES_USER: supplier
-      POSTGRES_PASSWORD: supplier
+      POSTGRES_DB: inventory
+      POSTGRES_USER: inventory
+      POSTGRES_PASSWORD: inventory
     ports:
       - "5434:5432"
     volumes:
-      - postgres-supplier-data:/var/lib/postgresql/data
+      - postgres-inventory-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U supplier -d supplier"]
+      test: ["CMD-SHELL", "pg_isready -U inventory -d inventory"]
       interval: 5s
       timeout: 3s
       retries: 10
 
-  app:
-    build: .
+  order-service:
+    build:
+      context: .
+      dockerfile: order-service/Dockerfile
     ports:
       - "8080:8080"
     environment:
-      # Container DNS: the app reaches Postgres by service name, on the
-      # in-network port (5432), never by localhost or the host-published
-      # port (5433/5434) — those only exist outside the compose network.
-      SPRING_DATASOURCE_PRIMARY_URL: jdbc:postgresql://postgres-primary:5432/logistics
-      SPRING_DATASOURCE_PRIMARY_USERNAME: logistics
-      SPRING_DATASOURCE_PRIMARY_PASSWORD: logistics
-      SPRING_DATASOURCE_SECONDARY_URL: jdbc:postgresql://postgres-supplier:5432/supplier
-      SPRING_DATASOURCE_SECONDARY_USERNAME: supplier
-      SPRING_DATASOURCE_SECONDARY_PASSWORD: supplier
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-logistics:5432/logistics
+      SPRING_DATASOURCE_USERNAME: logistics
+      SPRING_DATASOURCE_PASSWORD: logistics
+      INVENTORY_SERVICE_URL: http://inventory-service:8081
     depends_on:
-      postgres-primary:
+      postgres-logistics:
         condition: service_healthy
-      postgres-supplier:
+      inventory-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
@@ -57,6 +59,26 @@ services:
       start_period: 40s
       retries: 5
 
+  inventory-service:
+    build:
+      context: .
+      dockerfile: inventory-service/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-inventory:5432/inventory
+      SPRING_DATASOURCE_USERNAME: inventory
+      SPRING_DATASOURCE_PASSWORD: inventory
+    depends_on:
+      postgres-inventory:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      start_period: 40s
+      retries: 5
+
 volumes:
-  postgres-primary-data:
-  postgres-supplier-data:
+  postgres-logistics-data:
+  postgres-inventory-data:
