@@ -47,6 +47,7 @@ services:
       SPRING_DATASOURCE_USERNAME: logistics
       SPRING_DATASOURCE_PASSWORD: logistics
       INVENTORY_SERVICE_URL: http://inventory-service:8081
+      INTERNAL_API_KEY: dev-only-internal-key
     depends_on:
       postgres-logistics:
         condition: service_healthy
@@ -69,6 +70,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-inventory:5432/inventory
       SPRING_DATASOURCE_USERNAME: inventory
       SPRING_DATASOURCE_PASSWORD: inventory
+      INTERNAL_API_KEY: dev-only-internal-key
     depends_on:
       postgres-inventory:
         condition: service_healthy

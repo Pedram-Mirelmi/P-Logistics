@@ -12,10 +12,14 @@ public class InventoryClient {
 
     private static final int CONNECT_TIMEOUT_MS = 2000;
     private static final int READ_TIMEOUT_MS = 3000;
+    private static final String API_KEY_HEADER = "X-Internal-Api-Key";
 
     private final RestClient restClient;
 
-    public InventoryClient(@Value("${inventory.service.url}") String inventoryServiceUrl) {
+    public InventoryClient(
+            @Value("${inventory.service.url}") String inventoryServiceUrl,
+            @Value("${internal.api-key}") String internalApiKey
+    ) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(CONNECT_TIMEOUT_MS);
         requestFactory.setReadTimeout(READ_TIMEOUT_MS);
@@ -23,6 +27,7 @@ public class InventoryClient {
         this.restClient = RestClient.builder()
                 .baseUrl(inventoryServiceUrl)
                 .requestFactory(requestFactory)
+                .defaultHeader(API_KEY_HEADER, internalApiKey)
                 .build();
     }
 

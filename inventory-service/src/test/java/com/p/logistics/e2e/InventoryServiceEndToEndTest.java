@@ -28,6 +28,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 class InventoryServiceEndToEndTest {
 
     private static final String BASE_URL = "http://localhost:8081";
+    // Must match inventory-service's internal.api-key (application.properties)
+    // - see InternalApiKeyFilter. Without this header every call below now
+    // gets 401, same as any other caller that isn't order-service.
+    private static final String INTERNAL_API_KEY = "dev-only-internal-key";
     private static final String DB_URL = "jdbc:postgresql://localhost:5434/inventory";
     private static final String DB_USER = "inventory";
     private static final String DB_PASSWORD = "inventory";
@@ -102,13 +106,16 @@ class InventoryServiceEndToEndTest {
     }
 
     private HttpResponse<String> get(String path) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder(URI.create(BASE_URL + path)).GET().build();
+        HttpRequest request = HttpRequest.newBuilder(URI.create(BASE_URL + path))
+                .header("X-Internal-Api-Key", INTERNAL_API_KEY)
+                .GET().build();
         return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     private HttpResponse<String> post(String path, String jsonBody) throws Exception {
         HttpRequest request = HttpRequest.newBuilder(URI.create(BASE_URL + path))
                 .header("Content-Type", "application/json")
+                .header("X-Internal-Api-Key", INTERNAL_API_KEY)
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
         return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
