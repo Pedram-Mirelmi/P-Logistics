@@ -78,7 +78,7 @@ class LazyInitializationTest {
         // already closed, has nowhere to run that deferred query.
         assertThatThrownBy(lines::size)
                 .isInstanceOf(LazyInitializationException.class)
-                .hasMessageContaining("no session");
+                .hasMessageContaining("no Session");
     }
 
     @Test

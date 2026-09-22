@@ -13,6 +13,7 @@ import java.net.http.HttpResponse;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.util.Base64;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +33,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 class OrderServiceEndToEndTest {
 
     private static final String ORDER_BASE_URL = "http://localhost:8080";
+    // Must match order-service's spring.security.user.* (application.properties)
+    // - see SecurityConfig. Every call below now needs this or it's a 401.
+    private static final String BASIC_AUTH_HEADER = "Basic " + Base64.getEncoder()
+            .encodeToString("order-client:order-client-secret".getBytes());
     private static final String INVENTORY_DB_URL = "jdbc:postgresql://localhost:5434/inventory";
     private static final String INVENTORY_DB_USER = "inventory";
     private static final String INVENTORY_DB_PASSWORD = "inventory";
@@ -110,13 +115,16 @@ class OrderServiceEndToEndTest {
     }
 
     private HttpResponse<String> get(String path) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder(URI.create(ORDER_BASE_URL + path)).GET().build();
+        HttpRequest request = HttpRequest.newBuilder(URI.create(ORDER_BASE_URL + path))
+                .header("Authorization", BASIC_AUTH_HEADER)
+                .GET().build();
         return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     private HttpResponse<String> post(String path, String jsonBody) throws Exception {
         HttpRequest request = HttpRequest.newBuilder(URI.create(ORDER_BASE_URL + path))
                 .header("Content-Type", "application/json")
+                .header("Authorization", BASIC_AUTH_HEADER)
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
         return httpClient.send(request, HttpResponse.BodyHandlers.ofString());

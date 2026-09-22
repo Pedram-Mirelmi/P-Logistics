@@ -24,7 +24,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * "hang for 5 seconds" or "reset the connection mid-response"). No Spring
  * context: this is InventoryClient in isolation, built directly against
  * WireMock's URL, matching how it's really constructed in production
- * ({@code new InventoryClient(inventoryServiceUrl)}).
+ * ({@code new InventoryClient(inventoryServiceUrl, internalApiKey)}). The
+ * API key value here is irrelevant to every test in this file - WireMock
+ * stubs below don't match on it, so any string does; only
+ * InternalApiKeyExperimentTest (inventory-service) actually checks it.
  * <p>
  * The question the chapter asks for every scenario: <b>can the client know
  * whether the operation executed?</b> Each test's comment answers it.
@@ -40,12 +43,13 @@ class InventoryClientFailureExperimentsTest {
 
     private static final String PRODUCT_ID = "FAILURE-EXPERIMENT-PRODUCT";
     private static final String RESERVE_PATH = "/inventory/" + PRODUCT_ID + "/reserve";
+    private static final String API_KEY = "irrelevant-to-these-stubs";
 
     @Test
     void serverUnavailable_clientCanTellTheOperationNeverExecuted() {
         // Nothing is listening on this port at all - the TCP handshake
         // itself fails, before any HTTP request is even framed.
-        InventoryClient client = new InventoryClient("http://localhost:1");
+        InventoryClient client = new InventoryClient("http://localhost:1", API_KEY);
 
         assertThatThrownBy(() -> client.reserve(PRODUCT_ID, 1))
                 .isInstanceOf(InventoryUnavailableException.class);
@@ -66,7 +70,7 @@ class InventoryClientFailureExperimentsTest {
                         // Longer than InventoryClient's 3000ms read timeout.
                         .withFixedDelay(5000)));
 
-        InventoryClient client = new InventoryClient(wireMock.baseUrl());
+        InventoryClient client = new InventoryClient(wireMock.baseUrl(), API_KEY);
 
         assertThatThrownBy(() -> client.reserve(PRODUCT_ID, 1))
                 .isInstanceOf(InventoryUnavailableException.class);
@@ -95,7 +99,7 @@ class InventoryClientFailureExperimentsTest {
                         // succeed - the contrast case for the timeout above.
                         .withFixedDelay(1000)));
 
-        InventoryClient client = new InventoryClient(wireMock.baseUrl());
+        InventoryClient client = new InventoryClient(wireMock.baseUrl(), API_KEY);
 
         assertThat(client.reserve(PRODUCT_ID, 1)).isTrue();
 
@@ -111,7 +115,7 @@ class InventoryClientFailureExperimentsTest {
                         .withHeader("Content-Type", "application/json")
                         .withBody("{\"reserved\":true}")));
 
-        InventoryClient client = new InventoryClient(wireMock.baseUrl());
+        InventoryClient client = new InventoryClient(wireMock.baseUrl(), API_KEY);
 
         // Stand-in for "the first call timed out (previous test), so the
         // caller retries, unsure whether the first one already reserved
@@ -139,7 +143,7 @@ class InventoryClientFailureExperimentsTest {
         wireMock.stubFor(post(urlEqualTo(RESERVE_PATH))
                 .willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
 
-        InventoryClient client = new InventoryClient(wireMock.baseUrl());
+        InventoryClient client = new InventoryClient(wireMock.baseUrl(), API_KEY);
 
         assertThatThrownBy(() -> client.reserve(PRODUCT_ID, 1))
                 .isInstanceOf(InventoryUnavailableException.class);
@@ -161,7 +165,7 @@ class InventoryClientFailureExperimentsTest {
                         .withHeader("Content-Type", "application/json")
                         .withBody("{ this is not valid json")));
 
-        InventoryClient client = new InventoryClient(wireMock.baseUrl());
+        InventoryClient client = new InventoryClient(wireMock.baseUrl(), API_KEY);
 
         // Whatever exception type surfaces, the important property being
         // checked is that reserve() never silently returns true/false for a
