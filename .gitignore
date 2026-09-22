@@ -37,3 +37,5 @@ build/
 
 ### Mac OS ###
 .DS_Store
+/distributed_is_master_learning_plan.md
+/.claude

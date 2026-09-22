@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -41,6 +42,7 @@ class OrderFlowIntegrationTest {
         Mockito.when(inventoryClient.reserve("P1", 2)).thenReturn(true);
 
         String response = mockMvc.perform(post("/orders")
+                        .with(httpBasic("order-client", "order-client-secret"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -61,7 +63,8 @@ class OrderFlowIntegrationTest {
         JsonNode order = objectMapper.readTree(response);
         String orderId = order.get("id").asText();
 
-        mockMvc.perform(get("/shipments/order/" + orderId))
+        mockMvc.perform(get("/shipments/order/" + orderId)
+                        .with(httpBasic("order-client", "order-client-secret")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orderId").value(orderId))
                 .andExpect(jsonPath("$.status").value("CREATED"));
