@@ -1,20 +1,17 @@
 # syntax=docker/dockerfile:1
-# Build context is the repo root (see compose.yaml) so the Maven reactor can
-# see the aggregator pom and every module's pom.xml.
+# Build context is this directory (see order/compose.yaml) - order-service
+# builds standalone, with no dependency on the root aggregator pom or any
+# sibling module.
 # --- Stage 1: build the application ---
 FROM maven:3.9-eclipse-temurin-25-noble AS build
 
 WORKDIR /workspace
 
-# The reactor pom lists both modules, so both module poms must be present to
-# resolve the reactor - even though only order-service is actually built.
 COPY pom.xml .
-COPY order-service/pom.xml order-service/pom.xml
-COPY inventory-service/pom.xml inventory-service/pom.xml
-RUN --mount=type=cache,target=/root/.m2 mvn -B -pl order-service dependency:go-offline
+RUN --mount=type=cache,target=/root/.m2 mvn -B dependency:go-offline
 
-COPY order-service/src order-service/src
-RUN --mount=type=cache,target=/root/.m2 mvn -B -pl order-service package -DskipTests
+COPY src src
+RUN --mount=type=cache,target=/root/.m2 mvn -B package -DskipTests
 
 # --- Stage 2: run the application ---
 FROM eclipse-temurin:25-jre-noble
@@ -28,7 +25,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 RUN useradd --system --create-home --shell /usr/sbin/nologin appuser
-COPY --from=build /workspace/order-service/target/*.jar app.jar
+COPY --from=build /workspace/target/*.jar app.jar
 RUN chown appuser:appuser app.jar
 USER appuser
 

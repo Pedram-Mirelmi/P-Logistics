@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>xyz.plogistics</groupId>
-    <artifactId>inventory-service</artifactId>
+    <artifactId>order</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <parent>
@@ -33,15 +33,6 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- Retries the optimistic-lock conflict on InventoryItem.reserve()
-             server-side; this is now purely an inventory-service concern,
-             invisible across the process boundary to order-service. -->
-        <dependency>
-            <groupId>org.springframework.retry</groupId>
-            <artifactId>spring-retry</artifactId>
-            <version>2.0.5</version>
-        </dependency>
-
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -57,9 +48,39 @@
             <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
 
+        <!-- HTTP / REST presentation layer, and RestClient for the outbound
+             call to inventory-service (Chapter 5: RPC over HTTP). -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Request validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- Step 06 security foundation (authentication): HTTP Basic on the
+             externally-facing API. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- Step 07 (Chapter 7: Message-Oriented Middleware): RabbitMQ
+             client, RabbitTemplate (outbox relay's publisher) and
+             @RabbitListener (the shipment-creation consumer). -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        <!-- spring-rabbit only depends on this optionally, but
+             RetryInterceptorBuilder (the listener's retry-then-dead-letter
+             policy, see RabbitMqConfig) needs it on the classpath. -->
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
         </dependency>
 
         <!-- Tests -->
@@ -69,10 +90,31 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.48</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- Stands in for inventory-service in the RPC failure-matrix
+             experiments (Step 05): lets those tests control exactly when
+             the "server" delays, drops the connection, or replies with
+             garbage, none of which a real running instance lets you do on
+             demand. "-standalone" (not the plain "wiremock" artifact):
+             WireMock 3.x no longer bundles a server engine in the plain
+             jar and defaults to Jetty 11, which isn't on this classpath
+             (order-service runs on Tomcat) - standalone ships everything,
+             shaded, so it can't collide with anything else here. -->
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+            <version>3.13.2</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

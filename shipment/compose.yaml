@@ -1,0 +1,24 @@
+# shipment-service owns no database of its own yet (see application.properties)
+# - it reads/writes the `shipment` table in postgres-order, so this file only
+# has to run alongside order/compose.yaml and the shared compose.yaml
+# (rabbitmq), e.g.:
+#   docker compose -f compose.yaml -f order/compose.yaml \
+#     -f inventory/compose.yaml -f shipment/compose.yaml up --build
+services:
+  shipment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-order:5432/order
+      SPRING_DATASOURCE_USERNAME: order
+      SPRING_DATASOURCE_PASSWORD: order
+      SPRING_RABBITMQ_HOST: rabbitmq
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8082/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      start_period: 40s
+      retries: 5
