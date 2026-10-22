@@ -1,7 +1,7 @@
 package com.p.logistics.inventory.integration;
 
-import com.p.logistics.inventory.entity.InventoryItem;
-import com.p.logistics.inventory.repository.JpaInventoryItemRepository;
+import com.p.logistics.inventory.inventory_item.entity.InventoryItem;
+import com.p.logistics.inventory.inventory_item.repository.InventoryItemRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ class ConcurrentInventoryUpdateTest {
     private static final int DECREMENT = 30;
 
     @Autowired
-    private JpaInventoryItemRepository inventoryRepository;
+    private InventoryItemRepository inventoryRepository;
 
     @Autowired
     private PlatformTransactionManager transactionManager;

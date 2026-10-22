@@ -1,9 +1,8 @@
 package com.p.logistics.inventory.unit;
 
-import com.p.logistics.inventory.entity.InventoryItem;
-import com.p.logistics.inventory.repository.JpaInventoryItemRepository;
-import com.p.logistics.inventory.service.InventoryService;
-import com.p.logistics.inventory.service.InventoryTransactionService;
+import com.p.logistics.inventory.inventory_item.entity.InventoryItem;
+import com.p.logistics.inventory.inventory_item.repository.InventoryItemRepository;
+import com.p.logistics.inventory.inventory_item.service.InventoryService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -26,7 +25,7 @@ import static org.mockito.Mockito.when;
 class InventoryServiceTest {
 
     @Mock
-    private JpaInventoryItemRepository inventoryRepository;
+    private InventoryItemRepository inventoryRepository;
 
     @Mock
     private InventoryTransactionService inventoryTransactionService;

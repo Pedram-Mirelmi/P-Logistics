@@ -1,10 +1,9 @@
 package com.p.logistics.inventory.unit;
 
-import com.p.logistics.inventory.entity.InventoryItem;
-import com.p.logistics.inventory.entity.InventoryReservation;
-import com.p.logistics.inventory.repository.JpaInventoryItemRepository;
-import com.p.logistics.inventory.repository.JpaInventoryReservationRepository;
-import com.p.logistics.inventory.service.InventoryTransactionService;
+import com.p.logistics.inventory.inventory_item.entity.InventoryItem;
+import com.p.logistics.inventory.reservation.entity.InventoryReservation;
+import com.p.logistics.inventory.inventory_item.repository.InventoryItemRepository;
+import com.p.logistics.inventory.reservation.repository.InventoryReservationRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -29,10 +28,10 @@ import static org.mockito.Mockito.when;
 class InventoryTransactionServiceTest {
 
     @Mock
-    private JpaInventoryItemRepository inventoryRepository;
+    private InventoryItemRepository inventoryRepository;
 
     @Mock
-    private JpaInventoryReservationRepository reservationRepository;
+    private InventoryReservationRepository reservationRepository;
 
     private InventoryTransactionService inventoryTransactionService;
 
