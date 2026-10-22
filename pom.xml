@@ -5,12 +5,25 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>xyz.plogistics</groupId>
-    <artifactId>P-Logistics</artifactId>
+    <artifactId>p-logistics-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <!--
+        Generation 3 (Step 05 - RPC & Distributed Transactions): Inventory is
+        split into its own deployed process. This aggregator pom exists only
+        to build both modules together; order-service and inventory-service
+        do not depend on each other's jars - they talk over HTTP.
+    -->
+    <modules>
+        <module>order-service</module>
+        <module>inventory-service</module>
+    </modules>
 
     <properties>
-        <maven.compiler.source>26</maven.compiler.source>
-        <maven.compiler.target>26</maven.compiler.target>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 

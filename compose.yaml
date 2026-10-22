@@ -1,0 +1,88 @@
+services:
+  postgres-logistics:
+    image: postgres:17
+    # max_prepared_transactions: off (0) by default - the Step 05 2PC lab
+    # (TwoPhaseCommitLabTest) needs PREPARE TRANSACTION enabled here and on
+    # postgres-inventory.
+    command: postgres -c max_prepared_transactions=10
+    environment:
+      POSTGRES_DB: logistics
+      POSTGRES_USER: logistics
+      POSTGRES_PASSWORD: logistics
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-logistics-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U logistics -d logistics"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  postgres-inventory:
+    image: postgres:17
+    command: postgres -c max_prepared_transactions=10
+    environment:
+      POSTGRES_DB: inventory
+      POSTGRES_USER: inventory
+      POSTGRES_PASSWORD: inventory
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-inventory-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inventory -d inventory"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  order-service:
+    build:
+      context: .
+      dockerfile: order-service/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-logistics:5432/logistics
+      SPRING_DATASOURCE_USERNAME: logistics
+      SPRING_DATASOURCE_PASSWORD: logistics
+      INVENTORY_SERVICE_URL: http://inventory-service:8081
+      INTERNAL_API_KEY: dev-only-internal-key
+      SPRING_SECURITY_USER_NAME: order-client
+      SPRING_SECURITY_USER_PASSWORD: order-client-secret
+    depends_on:
+      postgres-logistics:
+        condition: service_healthy
+      inventory-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      start_period: 40s
+      retries: 5
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: inventory-service/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-inventory:5432/inventory
+      SPRING_DATASOURCE_USERNAME: inventory
+      SPRING_DATASOURCE_PASSWORD: inventory
+      INTERNAL_API_KEY: dev-only-internal-key
+    depends_on:
+      postgres-inventory:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      start_period: 40s
+      retries: 5
+
+volumes:
+  postgres-logistics-data:
+  postgres-inventory-data:
